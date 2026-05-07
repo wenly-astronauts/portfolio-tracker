@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portofolio — Investment Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,300&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0b0f;
+  --bg2: #0f1117;
+  --bg3: #151821;
+  --bg4: #1c2030;
+  --border: #232739;
+  --border2: #2e3450;
+  --text: #e8eaf2;
+  --text2: #8b90ab;
+  --text3: #555b7a;
+  --accent: #5b6af0;
+  --accent2: #7b87f5;
+  --accent-glow: rgba(91,106,240,0.18);
+  --green: #22d47e;
+  --green-dim: rgba(34,212,126,0.12);
+  --red: #f05b7a;
+  --red-dim: rgba(240,91,122,0.12);
+  --gold: #f0b83c;
+  --gold-dim: rgba(240,184,60,0.12);
+  --idx: #5b6af0;
+  --us: #22d47e;
+  --crypto: #f0903c;
+  --cash: #8b90ab;
+  --radius: 12px;
+  --radius-sm: 7px;
+  --mono: 'DM Mono', monospace;
+  --sans: 'DM Sans', sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: var(--sans);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 5px; height: 5px; }
+::-webkit-scrollbar-track { background: var(--bg2); }
+::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 99px; }
+
+/* LAYOUT */
+.app { display: flex; flex-direction: column; min-height: 100vh; }
+
+.topbar {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 28px; height: 58px;
+  background: var(--bg2); border-bottom: 1px solid var(--border);
+  position: sticky; top: 0; z-index: 100;
+  backdrop-filter: blur(12px);
+}
+.topbar-logo {
+  display: flex; align-items: center; gap: 10px;
+  font-size: 15px; font-weight: 600; letter-spacing: -0.3px;
+}
+.topbar-logo svg { color: var(--accent2); }
+.topbar-actions { display: flex; align-items: center; gap: 8px; }
+
+.content { padding: 24px 28px; max-width: 1480px; margin: 0 auto; width: 100%; }
+
+/* BUTTONS */
+.btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: var(--radius-sm);
+  font-family: var(--sans); font-size: 13px; font-weight: 500;
+  cursor: pointer; border: none; transition: all .15s ease;
+  white-space: nowrap;
+}
+.btn-primary { background: var(--accent); color: #fff; }
+.btn-primary:hover { background: var(--accent2); transform: translateY(-1px); box-shadow: 0 4px 16px rgba(91,106,240,.35); }
+.btn-ghost { background: transparent; color: var(--text2); border: 1px solid var(--border2); }
+.btn-ghost:hover { background: var(--bg4); color: var(--text); }
+.btn-danger { background: transparent; color: var(--red); border: 1px solid rgba(240,91,122,.25); }
+.btn-danger:hover { background: var(--red-dim); }
+.btn-sm { padding: 4px 10px; font-size: 12px; }
+.btn-icon { padding: 7px; }
+
+/* CARDS */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 22px;
+}
+.card {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 18px 20px;
+  transition: border-color .2s;
+}
+.card:hover { border-color: var(--border2); }
+.card-label {
+  font-size: 11px; font-weight: 500; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 8px;
+}
+.card-value {
+  font-family: var(--mono); font-size: 20px; font-weight: 500;
+  color: var(--text); letter-spacing: -0.5px;
+}
+.card-value.green { color: var(--green); }
+.card-value.red { color: var(--red); }
+.card-sub {
+  font-family: var(--mono); font-size: 11px; color: var(--text3);
+  margin-top: 4px;
+}
+.card-accent { border-left: 3px solid var(--accent); }
+
+/* ALLOCATION BAR */
+.alloc-section {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); padding: 20px 22px; margin-bottom: 22px;
+}
+.alloc-title {
+  font-size: 12px; font-weight: 600; letter-spacing: .07em;
+  text-transform: uppercase; color: var(--text3); margin-bottom: 16px;
+}
+.alloc-bar {
+  display: flex; height: 10px; border-radius: 99px;
+  overflow: hidden; background: var(--bg4); margin-bottom: 14px;
+}
+.alloc-seg { transition: width .5s cubic-bezier(.4,0,.2,1); }
+.alloc-legend {
+  display: flex; flex-wrap: wrap; gap: 14px;
+}
+.alloc-item {
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--text2);
+}
+.alloc-dot { width: 8px; height: 8px; border-radius: 3px; flex-shrink: 0; }
+.alloc-pct { font-family: var(--mono); font-weight: 500; color: var(--text); margin-left: 2px; }
+
+/* TABLE SECTION */
+.table-section {
+  background: var(--bg3); border: 1px solid var(--border);
+  border-radius: var(--radius); overflow: hidden; margin-bottom: 22px;
+}
+.table-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 16px 20px; border-bottom: 1px solid var(--border);
+  flex-wrap: wrap; gap: 10px;
+}
+.table-title {
+  font-size: 13px; font-weight: 600; color: var(--text);
+}
+.tabs {
+  display: flex; gap: 2px;
+  background: var(--bg4); padding: 3px; border-radius: var(--radius-sm);
+}
+.tab {
+  padding: 5px 12px; border-radius: 5px; font-size: 12px; font-weight: 500;
+  cursor: pointer; color: var(--text2); transition: all .15s;
+  border: none; background: transparent; font-family: var(--sans);
+}
+.tab.active { background: var(--bg3); color: var(--text); box-shadow: 0 1px 4px rgba(0,0,0,.3); }
+.tab:hover:not(.active) { color: var(--text); }
+
+.table-wrap { overflow-x: auto; }
+table { width: 100%; border-collapse: collapse; font-size: 13px; }
+th {
+  padding: 10px 14px; text-align: left;
+  font-size: 10px; font-weight: 600; letter-spacing: .06em;
+  text-transform: uppercase; color: var(--text3);
+  border-bottom: 1px solid var(--border); background: var(--bg3);
+  white-space: nowrap;
+}
+th:first-child { padding-left: 20px; }
+th:last-child { padding-right: 20px; }
+td {
+  padding: 11px 14px; border-bottom: 1px solid var(--border);
+  vertical-align: middle; color: var(--text2);
+}
+td:first-child { padding-left: 20px; }
+td:last-child { padding-right: 20px; }
+tr:last-child td { border-bottom: none; }
+tr:hover td { background: rgba(255,255,255,.015); }
+tr.editing td { background: rgba(91,106,240,.04); }
+
+.mono { font-family: var(--mono); }
+.text-right { text-align: right; }
+.text-center { text-align: center; }
+
+/* BADGES */
+.badge {
+  display: inline-flex; align-items: center;
+  padding: 2px 8px; border-radius: 5px;
+  font-size: 10px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase;
+}
+.badge-idx { background: rgba(91,106,240,.18); color: #7b87f5; }
+.badge-us { background: rgba(34,212,126,.15); color: #22d47e; }
+.badge-gold { background: rgba(240,184,60,.18); color: #f0b83c; }
+.badge-crypto { background: rgba(240,144,60,.18); color: #f0a03c; }
+.badge-cash { background: rgba(139,144,171,.15); color: #adb1c7; }
+
+/* PROFIT DISPLAY */
+.profit-pos { color: var(--green); }
+.profit-neg { color: var(--red); }
+.profit-zero { color: var(--text3); }
+
+/* EDITABLE CELLS */
+.editable {
+  cursor: pointer; border-radius: 5px;
+  padding: 2px 6px; margin: -2px -6px;
+  transition: background .15s;
+  display: inline-block; min-width: 60px;
+}
+.editable:hover { background: var(--bg4); }
+.editable:focus { outline: none; background: var(--bg4); box-shadow: 0 0 0 2px var(--accent); }
+
+.inline-input {
+  background: var(--bg4); border: 1px solid var(--accent);
+  border-radius: 5px; color: var(--text);
+  font-family: var(--mono); font-size: 13px;
+  padding: 3px 7px; width: 100%; min-width: 80px;
+  outline: none;
+}
+.inline-input:focus { box-shadow: 0 0 0 2px var(--accent-glow); }
+
+select.inline-input {
+  font-family: var(--sans); cursor: pointer;
+  appearance: none; padding-right: 24px;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%238b90ab' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 7px center;
+}
+
+/* ACTION BUTTONS IN TABLE */
+.row-actions { display: flex; gap: 4px; opacity: 0; transition: opacity .15s; }
+tr:hover .row-actions { opacity: 1; }
+
+/* MODAL */
+.modal-overlay {
+  position: fixed; inset: 0; z-index: 200;
+  background: rgba(0,0,0,.65); backdrop-filter: blur(6px);
+  display: flex; align-items: center; justify-content: center;
+  padding: 20px;
+  opacity: 0; pointer-events: none; transition: opacity .2s;
+}
+.modal-overlay.open { opacity: 1; pointer-events: all; }
+.modal {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: 16px; padding: 28px 28px 24px;
+  width: 100%; max-width: 520px; max-height: 90vh; overflow-y: auto;
+  transform: translateY(16px); transition: transform .2s;
+}
+.modal-overlay.open .modal { transform: translateY(0); }
+.modal-title {
+  font-size: 16px; font-weight: 600; margin-bottom: 22px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+.form-label { font-size: 11px; font-weight: 600; letter-spacing: .05em; text-transform: uppercase; color: var(--text3); }
+.form-input {
+  background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); color: var(--text);
+  font-family: var(--sans); font-size: 13px;
+  padding: 9px 12px; outline: none; transition: border-color .15s;
+}
+.form-input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-glow); }
+.form-input::placeholder { color: var(--text3); }
+select.form-input { cursor: pointer; }
+.form-actions { display: flex; gap: 8px; justify-content: flex-end; margin-top: 6px; }
+
+/* TOAST */
+.toast-container { position: fixed; bottom: 20px; right: 20px; z-index: 500; display: flex; flex-direction: column; gap: 8px; }
+.toast {
+  background: var(--bg4); border: 1px solid var(--border2);
+  border-radius: var(--radius-sm); padding: 10px 16px;
+  font-size: 13px; color: var(--text);
+  box-shadow: 0 4px 20px rgba(0,0,0,.4);
+  animation: toastIn .25s ease;
+  display: flex; align-items: center; gap: 8px;
+}
+.toast.success { border-left: 3px solid var(--green); }
+.toast.error { border-left: 3px solid var(--red); }
+@keyframes toastIn { from { opacity: 0; transform: translateX(20px); } }
+
+/* CASH SECTION */
+.section-header {
+  display: flex; align-items: center; justify-content: space-between;
+  margin-bottom: 14px;
+}
+.section-title { font-size: 13px; font-weight: 600; color: var(--text); }
+
+/* EMPTY STATE */
+.empty-state {
+  padding: 48px 20px; text-align: center; color: var(--text3);
+}
+.empty-state svg { margin-bottom: 12px; opacity: .4; }
+.empty-state p { font-size: 13px; }
+
+/* CONFIRM DIALOG */
+.confirm-overlay {
+  position: fixed; inset: 0; z-index: 300;
+  background: rgba(0,0,0,.7); backdrop-filter: blur(4px);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .15s;
+}
+.confirm-overlay.open { opacity: 1; pointer-events: all; }
+.confirm-box {
+  background: var(--bg3); border: 1px solid var(--border2);
+  border-radius: var(--radius); padding: 24px; max-width: 360px; width: 100%;
+  transform: scale(.96); transition: transform .15s;
+}
+.confirm-overlay.open .confirm-box { transform: scale(1); }
+.confirm-title { font-size: 15px; font-weight: 600; margin-bottom: 8px; }
+.confirm-msg { font-size: 13px; color: var(--text2); margin-bottom: 20px; }
+.confirm-actions { display: flex; gap: 8px; justify-content: flex-end; }
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+  .content { padding: 16px; }
+  .topbar { padding: 0 16px; }
+  .form-grid { grid-template-columns: 1fr; }
+  .cards-grid { grid-template-columns: repeat(2, 1fr); }
+  .topbar-label { display: none; }
+}
+
+/* TICKER BADGE */
+.ticker {
+  font-family: var(--mono); font-size: 13px; font-weight: 500;
+  color: var(--text); letter-spacing: .02em;
+}
+
+/* SHIMMER (loading) */
+.shimmer {
+  background: linear-gradient(90deg, var(--bg3) 25%, var(--bg4) 50%, var(--bg3) 75%);
+  background-size: 200% 100%; animation: shimmer 1.5s infinite;
+}
+@keyframes shimmer { 0% { background-position: -200% 0; } 100% { background-position: 200% 0; } }
+
+/* DIVIDER */
+.divider { height: 1px; background: var(--border); margin: 20px 0; }
+
+/* HEADER GLOW LINE */
+.topbar::after {
+  content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+  height: 1px; background: linear-gradient(90deg, transparent, var(--accent-glow), transparent);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-logo">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M3 3v18h18"/><path d="M7 16l4-4 4 4 4-4"/>
+      </svg>
+      <span>Portofolio</span>
+    </div>
+    <div class="topbar-actions">
+      <button class="btn btn-ghost btn-sm" onclick="importJSON()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+        <span class="topbar-label">Import</span>
+      </button>
+      <button class="btn btn-ghost btn-sm" onclick="exportJSON()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+        <span class="topbar-label">Export</span>
+      </button>
+      <button class="btn btn-ghost btn-sm btn-icon" onclick="showResetConfirm()" title="Reset All Data">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+      </button>
+      <button class="btn btn-primary btn-sm" onclick="openAddAsset()">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Add Asset
+      </button>
+    </div>
+  </header>
+
+  <div class="content">
+
+    <!-- SUMMARY CARDS -->
+    <div class="cards-grid" id="summaryCards"></div>
+
+    <!-- ALLOCATION -->
+    <div class="alloc-section">
+      <div class="alloc-title">Portfolio Allocation</div>
+      <div class="alloc-bar" id="allocBar"></div>
+      <div class="alloc-legend" id="allocLegend"></div>
+    </div>
+
+    <!-- ASSETS TABLE -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Assets</div>
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <div class="tabs" id="tabs">
+            <button class="tab active" onclick="setTab('all',this)">All</button>
+            <button class="tab" onclick="setTab('IDX',this)">IDX</button>
+            <button class="tab" onclick="setTab('US',this)">US</button>
+            <button class="tab" onclick="setTab('Gold',this)">Gold</button>
+            <button class="tab" onclick="setTab('Crypto',this)">Crypto</button>
+          </div>
+        </div>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Type</th>
+              <th>Ticker</th>
+              <th class="text-right">Qty</th>
+              <th class="text-right">Buy Price</th>
+              <th class="text-right">Market Price</th>
+              <th class="text-right">Invested</th>
+              <th class="text-right">Market Value</th>
+              <th class="text-right">P/L</th>
+              <th>Cur.</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="assetTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- CASH SECTION -->
+    <div class="table-section">
+      <div class="table-header">
+        <div class="table-title">Cash & RDN</div>
+        <button class="btn btn-ghost btn-sm" onclick="openAddCash()">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          Add Cash
+        </button>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Broker / Account</th>
+              <th class="text-right">Balance</th>
+              <th>Currency</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="cashTable"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /app -->
+
+<!-- ADD/EDIT ASSET MODAL -->
+<div class="modal-overlay" id="assetModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="assetModalTitle">Add Asset</span>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="closeAssetModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group">
+        <label class="form-label">Asset Type</label>
+        <select class="form-input" id="f_type" onchange="onTypeChange()">
+          <option value="IDX">IDX Stock</option>
+          <option value="US">US Stock</option>
+          <option value="Gold">Gold</option>
+          <option value="Crypto">Crypto</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Ticker / Code</label>
+        <input type="text" class="form-input" id="f_ticker" placeholder="e.g. BBRI, AAPL, BTC" oninput="onTickerInput()">
+      </div>
+      <div class="form-group">
+        <label class="form-label" id="qty_label">Quantity (Lots)</label>
+        <input type="number" class="form-input" id="f_qty" placeholder="0" min="0" step="any">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Buy Price</label>
+        <input type="number" class="form-input" id="f_buyPrice" placeholder="0" min="0" step="any">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Market Price</label>
+        <input type="number" class="form-input" id="f_marketPrice" placeholder="0" min="0" step="any">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Currency</label>
+        <select class="form-input" id="f_currency">
+          <option value="IDR">IDR</option>
+          <option value="USD">USD</option>
+          <option value="USDT">USDT</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Notes / Broker</label>
+        <input type="text" class="form-input" id="f_notes" placeholder="e.g. Mandiri Sekuritas, Binance">
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeAssetModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveAsset()">Save Asset</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD/EDIT CASH MODAL -->
+<div class="modal-overlay" id="cashModal">
+  <div class="modal">
+    <div class="modal-title">
+      <span id="cashModalTitle">Add Cash</span>
+      <button class="btn btn-ghost btn-icon btn-sm" onclick="closeCashModal()">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div class="form-grid">
+      <div class="form-group full">
+        <label class="form-label">Broker / Account Name</label>
+        <input type="text" class="form-input" id="cf_broker" placeholder="e.g. Mandiri Sekuritas RDN">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Balance</label>
+        <input type="number" class="form-input" id="cf_balance" placeholder="0" min="0" step="any">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Currency</label>
+        <select class="form-input" id="cf_currency">
+          <option value="IDR">IDR</option>
+          <option value="USD">USD</option>
+          <option value="USDT">USDT</option>
+          <option value="EUR">EUR</option>
+        </select>
+      </div>
+      <div class="form-group full">
+        <label class="form-label">Notes</label>
+        <input type="text" class="form-input" id="cf_notes" placeholder="Optional notes">
+      </div>
+    </div>
+    <div class="divider"></div>
+    <div class="form-actions">
+      <button class="btn btn-ghost" onclick="closeCashModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveCash()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONFIRM DIALOG -->
+<div class="confirm-overlay" id="confirmOverlay">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Confirm</div>
+    <div class="confirm-msg" id="confirmMsg"></div>
+    <div class="confirm-actions">
+      <button class="btn btn-ghost" onclick="closeConfirm()">Cancel</button>
+      <button class="btn btn-danger" id="confirmBtn">Delete</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST CONTAINER -->
+<div class="toast-container" id="toastContainer"></div>
+
+<!-- HIDDEN FILE INPUT -->
+<input type="file" id="importInput" accept=".json" style="display:none" onchange="handleImport(event)">
+
+<script>
+// ============================================================
+// DEFAULT MARKET PRICES
+// ============================================================
+const DEFAULT_PRICES = {
+  // IDX
+  'BBRI': 4200, 'BBCA': 9250, 'TLKM': 3150, 'ASII': 4890, 'BMRI': 6025,
+  'BYAN': 18500, 'GOTO': 57, 'ANTM': 1430, 'PTBA': 2980, 'INDF': 7125,
+  'UNVR': 2420, 'ICBP': 8575, 'KLBF': 1545, 'EMTK': 392, 'SMGR': 3670,
+  // US
+  'AAPL': 211.45, 'MSFT': 415.80, 'GOOGL': 175.30, 'AMZN': 198.50,
+  'NVDA': 950.20, 'META': 520.60, 'TSLA': 180.30, 'AMD': 165.40,
+  'NFLX': 680.00, 'BABA': 88.50,
+  // Crypto
+  'BTC': 62400, 'ETH': 2980, 'BNB': 610, 'SOL': 145, 'ADA': 0.48,
+  'XRP': 0.52, 'DOGE': 0.16, 'MATIC': 0.72, 'DOT': 6.80, 'AVAX': 35.40,
+  // Gold (per gram in IDR)
+  'XAU': 1285000, 'GOLD': 1285000, 'LM': 1285000,
+};
+
+const DEFAULT_CURRENCIES = {
+  'BBRI':'IDR','BBCA':'IDR','TLKM':'IDR','ASII':'IDR','BMRI':'IDR',
+  'BYAN':'IDR','GOTO':'IDR','ANTM':'IDR','PTBA':'IDR','INDF':'IDR',
+  'UNVR':'IDR','ICBP':'IDR','KLBF':'IDR','EMTK':'IDR','SMGR':'IDR',
+  'AAPL':'USD','MSFT':'USD','GOOGL':'USD','AMZN':'USD','NVDA':'USD',
+  'META':'USD','TSLA':'USD','AMD':'USD','NFLX':'USD','BABA':'USD',
+  'BTC':'USDT','ETH':'USDT','BNB':'USDT','SOL':'USDT','ADA':'USDT',
+  'XRP':'USDT','DOGE':'USDT','MATIC':'USDT','DOT':'USDT','AVAX':'USDT',
+  'XAU':'IDR','GOLD':'IDR','LM':'IDR',
+};
+
+// ============================================================
+// STATE
+// ============================================================
+let state = {
+  assets: [],
+  cash: [],
+};
+let editAssetId = null;
+let editCashId = null;
+let activeTab = 'all';
+let pendingConfirm = null;
+
+// ============================================================
+// STORAGE
+// ============================================================
+function save() {
+  localStorage.setItem('porto_v2', JSON.stringify(state));
+}
+function load() {
+  const raw = localStorage.getItem('porto_v2');
+  if (raw) {
+    try { state = JSON.parse(raw); } catch(e) {}
+  }
+}
+
+// ============================================================
+// CURRENCY FORMAT
+// ============================================================
+const CUR_SYMBOL = { IDR: 'Rp', USD: '$', USDT: '₮', EUR: '€' };
+const CUR_LOCALE = { IDR: 'id-ID', USD: 'en-US', USDT: 'en-US', EUR: 'de-DE' };
+const CUR_FRAC   = { IDR: 0, USD: 2, USDT: 2, EUR: 2 };
+
+function fmtCur(val, currency = 'IDR') {
+  if (val == null || isNaN(val)) return '—';
+  const sym = CUR_SYMBOL[currency] || currency;
+  const frac = CUR_FRAC[currency] ?? 2;
+  const abs = Math.abs(val);
+  let formatted;
+  if (currency === 'IDR') {
+    formatted = new Intl.NumberFormat('id-ID', { minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(abs);
+  } else {
+    formatted = new Intl.NumberFormat('en-US', { minimumFractionDigits: frac, maximumFractionDigits: frac }).format(abs);
+  }
+  return (val < 0 ? '-' : '') + sym + formatted;
+}
+
+function fmtNum(val, frac = 2) {
+  if (val == null || isNaN(val)) return '—';
+  return new Intl.NumberFormat('en-US', { minimumFractionDigits: frac, maximumFractionDigits: frac }).format(val);
+}
+
+function fmtPct(val) {
+  if (val == null || isNaN(val) || !isFinite(val)) return '—';
+  const sign = val >= 0 ? '+' : '';
+  return sign + fmtNum(val, 2) + '%';
+}
+
+// ============================================================
+// ID GENERATOR
+// ============================================================
+function uid() { return Date.now().toString(36) + Math.random().toString(36).slice(2); }
+
+// ============================================================
+// ASSET LOT MULTIPLIER
+// ============================================================
+function lotMult(type) {
+  if (type === 'IDX') return 100; // 1 lot = 100 shares
+  return 1;
+}
+
+// ============================================================
+// CALCULATIONS
+// ============================================================
+function calcAsset(a) {
+  const mult = lotMult(a.type);
+  const qty = parseFloat(a.qty) || 0;
+  const buyPrice = parseFloat(a.buyPrice) || 0;
+  const marketPrice = parseFloat(a.marketPrice) || 0;
+  const units = qty * mult;
+  const invested = units * buyPrice;
+  const marketVal = units * marketPrice;
+  const pl = marketVal - invested;
+  const plPct = invested !== 0 ? (pl / invested) * 100 : 0;
+  return { units, invested, marketVal, pl, plPct };
+}
+
+// ============================================================
+// SYNC MARKET PRICES
+// ============================================================
+function syncMarketPrice(ticker, price, excludeId) {
+  const t = ticker.toUpperCase();
+  state.assets.forEach(a => {
+    if (a.ticker.toUpperCase() === t && a.id !== excludeId) {
+      a.marketPrice = price;
+    }
+  });
+}
+
+// ============================================================
+// SUMMARY
+// ============================================================
+function computeSummary() {
+  let totalAssetIDR = 0, totalInvestedIDR = 0, totalPL = 0;
+  // For simplicity, display each asset in its own currency
+  // Totals are per-currency aggregation; we show combined for IDR+USD side by side
+  const byType = { IDX: 0, US: 0, Gold: 0, Crypto: 0 };
+  const byTypePL = { IDX: 0, US: 0, Gold: 0, Crypto: 0 };
+
+  state.assets.forEach(a => {
+    const { invested, marketVal, pl } = calcAsset(a);
+    byType[a.type] = (byType[a.type] || 0) + marketVal;
+    byTypePL[a.type] = (byTypePL[a.type] || 0) + pl;
+  });
+
+  const cashByCur = {};
+  state.cash.forEach(c => {
+    cashByCur[c.currency] = (cashByCur[c.currency] || 0) + parseFloat(c.balance || 0);
+  });
+
+  // Sum all asset vals (as-is, mixed currencies — we tag)
+  const assetByCur = {};
+  const investedByCur = {};
+  state.assets.forEach(a => {
+    const { invested, marketVal } = calcAsset(a);
+    assetByCur[a.currency] = (assetByCur[a.currency] || 0) + marketVal;
+    investedByCur[a.currency] = (investedByCur[a.currency] || 0) + invested;
+  });
+
+  return { byType, byTypePL, cashByCur, assetByCur, investedByCur };
+}
+
+// Render multi-currency value
+function renderMultiCur(obj) {
+  const parts = Object.entries(obj).filter(([,v]) => v !== 0).map(([c,v]) => fmtCur(v, c));
+  return parts.length ? parts.join(' + ') : '—';
+}
+
+// ============================================================
+// RENDER SUMMARY CARDS
+// ============================================================
+function renderSummary() {
+  const { byType, byTypePL, cashByCur, assetByCur, investedByCur } = computeSummary();
+
+  const totalAssetParts = Object.entries(assetByCur).filter(([,v]) => v > 0);
+  const totalInvestedParts = Object.entries(investedByCur).filter(([,v]) => v > 0);
+  const cashParts = Object.entries(cashByCur).filter(([,v]) => v > 0);
+
+  // Compute total PL per currency
+  const plByCur = {};
+  state.assets.forEach(a => {
+    const { pl } = calcAsset(a);
+    plByCur[a.currency] = (plByCur[a.currency] || 0) + pl;
+  });
+  const plParts = Object.entries(plByCur).filter(([,v]) => v !== 0);
+
+  // Overall PL pct (blended across currencies — approximate by currency)
+  let totalInvestedAll = 0, totalPLAll = 0;
+  state.assets.forEach(a => {
+    const { invested, pl } = calcAsset(a);
+    totalInvestedAll += invested;
+    totalPLAll += pl;
+  });
+  const plPct = totalInvestedAll !== 0 ? (totalPLAll / totalInvestedAll) * 100 : 0;
+
+  const plSign = totalPLAll >= 0;
+  const plClass = totalPLAll > 0 ? 'green' : totalPLAll < 0 ? 'red' : '';
+
+  const numAssets = state.assets.length;
+  const numBrokers = new Set([...state.cash.map(c => c.broker), ...state.assets.map(a => a.notes).filter(Boolean)]).size;
+
+  const pl_str = plParts.length
+    ? plParts.map(([c,v]) => `<span class="${v>=0?'profit-pos':'profit-neg'}">${fmtCur(v,c)}</span>`).join(' ')
+    : '<span class="profit-zero">—</span>';
+
+  document.getElementById('summaryCards').innerHTML = `
+    <div class="card card-accent">
+      <div class="card-label">Total Asset Value</div>
+      <div class="card-value">${totalAssetParts.length ? totalAssetParts.map(([c,v])=>fmtCur(v,c)).join('<br>') : '—'}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Cash</div>
+      <div class="card-value">${cashParts.length ? cashParts.map(([c,v])=>fmtCur(v,c)).join('<br>') : '—'}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total Invested</div>
+      <div class="card-value">${totalInvestedParts.length ? totalInvestedParts.map(([c,v])=>fmtCur(v,c)).join('<br>') : '—'}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Total P/L</div>
+      <div class="card-value ${plClass}">${pl_str}</div>
+      <div class="card-sub ${plClass}">${fmtPct(plPct)}</div>
+    </div>
+    <div class="card">
+      <div class="card-label">Assets</div>
+      <div class="card-value">${numAssets}</div>
+      <div class="card-sub">${numBrokers} broker${numBrokers!==1?'s':''}</div>
+    </div>
+  `;
+}
+
+// ============================================================
+// RENDER ALLOCATION
+// ============================================================
+const TYPE_COLORS = {
+  IDX: '#5b6af0', US: '#22d47e', Gold: '#f0b83c', Crypto: '#f0903c', Cash: '#555b7a'
+};
+
+function renderAlloc() {
+  const { byType, cashByCur, assetByCur } = computeSummary();
+
+  // Approximate allocation in USD equivalent (we just use raw numbers, ignoring FX)
+  // For visual purposes, we use the raw asset values by type
+  const typeVals = {
+    IDX: 0, US: 0, Gold: 0, Crypto: 0, Cash: 0,
+  };
+
+  state.assets.forEach(a => {
+    const { marketVal } = calcAsset(a);
+    typeVals[a.type] = (typeVals[a.type] || 0) + marketVal;
+  });
+  // Cash: sum in a pseudo value (just count IDR+USD*16000+USDT*16000)
+  const FX = { IDR: 1, USD: 16000, USDT: 16000, EUR: 17500 };
+  Object.entries(cashByCur).forEach(([c,v]) => {
+    typeVals.Cash += v * (FX[c] || 1);
+  });
+  // Normalize asset values to IDR equivalent too for allocation
+  state.assets.forEach(a => {
+    // already counted above per type, need IDR equiv
+  });
+
+  const assetIDR = {};
+  state.assets.forEach(a => {
+    const { marketVal } = calcAsset(a);
+    const eq = marketVal * (FX[a.currency] || 1);
+    assetIDR[a.type] = (assetIDR[a.type] || 0) + eq;
+  });
+
+  const all = {
+    IDX: assetIDR.IDX || 0, US: assetIDR.US || 0,
+    Gold: assetIDR.Gold || 0, Crypto: assetIDR.Crypto || 0, Cash: typeVals.Cash || 0
+  };
+  const total = Object.values(all).reduce((a,b) => a+b, 0);
+
+  const bar = document.getElementById('allocBar');
+  const legend = document.getElementById('allocLegend');
+
+  if (total === 0) {
+    bar.innerHTML = `<div class="alloc-seg" style="width:100%;background:var(--bg4)"></div>`;
+    legend.innerHTML = `<span style="font-size:12px;color:var(--text3)">No data yet</span>`;
+    return;
+  }
+
+  bar.innerHTML = Object.entries(all).map(([k,v]) => {
+    const pct = (v/total*100).toFixed(1);
+    if (pct < 0.5) return '';
+    return `<div class="alloc-seg" style="width:${pct}%;background:${TYPE_COLORS[k]}" title="${k}: ${pct}%"></div>`;
+  }).join('');
+
+  legend.innerHTML = Object.entries(all).map(([k,v]) => {
+    const pct = (v/total*100).toFixed(1);
+    if (v === 0) return '';
+    return `
+      <div class="alloc-item">
+        <div class="alloc-dot" style="background:${TYPE_COLORS[k]}"></div>
+        <span>${k}</span>
+        <span class="alloc-pct">${pct}%</span>
+      </div>`;
+  }).join('');
+}
+
+// ============================================================
+// RENDER ASSET TABLE
+// ============================================================
+function getBadge(type) {
+  const map = {IDX:'idx', US:'us', Gold:'gold', Crypto:'crypto'};
+  return `<span class="badge badge-${map[type]||'idx'}">${type}</span>`;
+}
+
+function renderAssets() {
+  const tbody = document.getElementById('assetTable');
+  let filtered = state.assets;
+  if (activeTab !== 'all') filtered = filtered.filter(a => a.type === activeTab);
+
+  if (filtered.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="11"><div class="empty-state">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+      <p>No assets yet. Click <strong>Add Asset</strong> to get started.</p>
+    </div></td></tr>`;
+    return;
+  }
+
+  tbody.innerHTML = filtered.map(a => {
+    const { invested, marketVal, pl, plPct } = calcAsset(a);
+    const plClass = pl > 0 ? 'profit-pos' : pl < 0 ? 'profit-neg' : 'profit-zero';
+    const mult = lotMult(a.type);
+    const qtyLabel = a.type === 'IDX' ? `${a.qty} lot` : fmtNum(parseFloat(a.qty)||0, a.type==='Gold'?3:a.qty%1!==0?4:0);
+
+    return `
+    <tr data-id="${a.id}">
+      <td>${getBadge(a.type)}</td>
+      <td><span class="ticker editable" contenteditable="true" data-field="ticker" data-id="${a.id}" onblur="cellSave(this)" onkeydown="cellKey(event,this)">${a.ticker}</span></td>
+      <td class="text-right"><span class="mono editable" contenteditable="true" data-field="qty" data-id="${a.id}" onblur="cellSave(this)" onkeydown="cellKey(event,this)">${a.qty}</span></td>
+      <td class="text-right"><span class="mono editable" contenteditable="true" data-field="buyPrice" data-id="${a.id}" onblur="cellSave(this)" onkeydown="cellKey(event,this)">${a.buyPrice}</span></td>
+      <td class="text-right"><span class="mono editable" contenteditable="true" data-field="marketPrice" data-id="${a.id}" onblur="cellSave(this)" onkeydown="cellKey(event,this)">${a.marketPrice}</span></td>
+      <td class="text-right mono">${fmtCur(invested, a.currency)}</td>
+      <td class="text-right mono">${fmtCur(marketVal, a.currency)}</td>
+      <td class="text-right">
+        <span class="mono ${plClass}">${fmtCur(pl, a.currency)}</span>
+        <div class="mono ${plClass}" style="font-size:11px">${fmtPct(plPct)}</div>
+      </td>
+      <td>
+        <select class="inline-input" style="width:68px;font-size:12px;padding:3px 22px 3px 7px" onchange="updateCurrency('${a.id}',this.value)">
+          ${['IDR','USD','USDT','EUR'].map(c=>`<option value="${c}"${a.currency===c?' selected':''}>${c}</option>`).join('')}
+        </select>
+      </td>
+      <td><span class="editable" contenteditable="true" style="color:var(--text3);min-width:80px" data-field="notes" data-id="${a.id}" onblur="cellSave(this)" onkeydown="cellKey(event,this)">${a.notes||''}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" title="Edit" onclick="openEditAsset('${a.id}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" title="Delete" onclick="confirmDeleteAsset('${a.id}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>`;
+  }).join('');
+}
+
+// ============================================================
+// RENDER CASH TABLE
+// ============================================================
+function renderCash() {
+  const tbody = document.getElementById('cashTable');
+  if (state.cash.length === 0) {
+    tbody.innerHTML = `<tr><td colspan="5"><div class="empty-state">
+      <p>No cash accounts yet.</p>
+    </div></td></tr>`;
+    return;
+  }
+  tbody.innerHTML = state.cash.map(c => `
+    <tr data-id="${c.id}">
+      <td><span class="editable" contenteditable="true" data-field="broker" data-id="${c.id}" data-entity="cash" onblur="cashCellSave(this)" onkeydown="cellKey(event,this)">${c.broker}</span></td>
+      <td class="text-right"><span class="mono editable" contenteditable="true" data-field="balance" data-id="${c.id}" data-entity="cash" onblur="cashCellSave(this)" onkeydown="cellKey(event,this)">${c.balance}</span></td>
+      <td>
+        <select class="inline-input" style="width:68px;font-size:12px;padding:3px 22px 3px 7px" onchange="updateCashCurrency('${c.id}',this.value)">
+          ${['IDR','USD','USDT','EUR'].map(cur=>`<option value="${cur}"${c.currency===cur?' selected':''}>${cur}</option>`).join('')}
+        </select>
+      </td>
+      <td><span class="editable" style="color:var(--text3)" contenteditable="true" data-field="notes" data-id="${c.id}" data-entity="cash" onblur="cashCellSave(this)" onkeydown="cellKey(event,this)">${c.notes||''}</span></td>
+      <td>
+        <div class="row-actions">
+          <button class="btn btn-ghost btn-sm btn-icon" onclick="openEditCash('${c.id}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+          </button>
+          <button class="btn btn-danger btn-sm btn-icon" onclick="confirmDeleteCash('${c.id}')">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+// ============================================================
+// MASTER RENDER
+// ============================================================
+function render() {
+  renderSummary();
+  renderAlloc();
+  renderAssets();
+  renderCash();
+}
+
+// ============================================================
+// TABS
+// ============================================================
+function setTab(tab, el) {
+  activeTab = tab;
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+  renderAssets();
+}
+
+// ============================================================
+// INLINE EDITING — ASSETS
+// ============================================================
+function cellSave(el) {
+  const id = el.dataset.id;
+  const field = el.dataset.field;
+  const a = state.assets.find(x => x.id === id);
+  if (!a) return;
+  let val = el.textContent.trim();
+  if (['qty','buyPrice','marketPrice'].includes(field)) {
+    val = parseFloat(val.replace(/[^0-9.-]/g,'')) || 0;
+    if (field === 'marketPrice') {
+      syncMarketPrice(a.ticker, val, a.id);
+    }
+  }
+  a[field] = val;
+  save();
+  render();
+}
+
+function cellKey(e, el) {
+  if (e.key === 'Enter') { e.preventDefault(); el.blur(); }
+  if (e.key === 'Escape') { el.blur(); }
+}
+
+function updateCurrency(id, val) {
+  const a = state.assets.find(x => x.id === id);
+  if (a) { a.currency = val; save(); render(); }
+}
+
+// ============================================================
+// INLINE EDITING — CASH
+// ============================================================
+function cashCellSave(el) {
+  const id = el.dataset.id;
+  const field = el.dataset.field;
+  const c = state.cash.find(x => x.id === id);
+  if (!c) return;
+  let val = el.textContent.trim();
+  if (field === 'balance') val = parseFloat(val.replace(/[^0-9.-]/g,'')) || 0;
+  c[field] = val;
+  save(); render();
+}
+
+function updateCashCurrency(id, val) {
+  const c = state.cash.find(x => x.id === id);
+  if (c) { c.currency = val; save(); render(); }
+}
+
+// ============================================================
+// ADD / EDIT ASSET MODAL
+// ============================================================
+function openAddAsset() {
+  editAssetId = null;
+  document.getElementById('assetModalTitle').textContent = 'Add Asset';
+  document.getElementById('f_type').value = 'IDX';
+  document.getElementById('f_ticker').value = '';
+  document.getElementById('f_qty').value = '';
+  document.getElementById('f_buyPrice').value = '';
+  document.getElementById('f_marketPrice').value = '';
+  document.getElementById('f_currency').value = 'IDR';
+  document.getElementById('f_notes').value = '';
+  onTypeChange();
+  document.getElementById('assetModal').classList.add('open');
+}
+
+function openEditAsset(id) {
+  const a = state.assets.find(x => x.id === id);
+  if (!a) return;
+  editAssetId = id;
+  document.getElementById('assetModalTitle').textContent = 'Edit Asset';
+  document.getElementById('f_type').value = a.type;
+  document.getElementById('f_ticker').value = a.ticker;
+  document.getElementById('f_qty').value = a.qty;
+  document.getElementById('f_buyPrice').value = a.buyPrice;
+  document.getElementById('f_marketPrice').value = a.marketPrice;
+  document.getElementById('f_currency').value = a.currency;
+  document.getElementById('f_notes').value = a.notes || '';
+  onTypeChange();
+  document.getElementById('assetModal').classList.add('open');
+}
+
+function closeAssetModal() {
+  document.getElementById('assetModal').classList.remove('open');
+}
+
+function onTypeChange() {
+  const type = document.getElementById('f_type').value;
+  const labels = { IDX: 'Quantity (Lots)', US: 'Quantity (Shares)', Gold: 'Quantity (Grams)', Crypto: 'Quantity (Units)' };
+  document.getElementById('qty_label').textContent = labels[type] || 'Quantity';
+  const curMap = { IDX: 'IDR', US: 'USD', Gold: 'IDR', Crypto: 'USDT' };
+  if (!editAssetId) document.getElementById('f_currency').value = curMap[type] || 'IDR';
+}
+
+function onTickerInput() {
+  const t = document.getElementById('f_ticker').value.toUpperCase();
+  if (DEFAULT_PRICES[t]) {
+    document.getElementById('f_marketPrice').value = DEFAULT_PRICES[t];
+  }
+  if (DEFAULT_CURRENCIES[t]) {
+    document.getElementById('f_currency').value = DEFAULT_CURRENCIES[t];
+  }
+}
+
+function saveAsset() {
+  const type = document.getElementById('f_type').value;
+  const ticker = document.getElementById('f_ticker').value.trim().toUpperCase();
+  const qty = parseFloat(document.getElementById('f_qty').value) || 0;
+  const buyPrice = parseFloat(document.getElementById('f_buyPrice').value) || 0;
+  const marketPrice = parseFloat(document.getElementById('f_marketPrice').value) || 0;
+  const currency = document.getElementById('f_currency').value;
+  const notes = document.getElementById('f_notes').value.trim();
+
+  if (!ticker) { toast('Ticker is required', 'error'); return; }
+  if (qty <= 0) { toast('Quantity must be > 0', 'error'); return; }
+
+  if (editAssetId) {
+    const a = state.assets.find(x => x.id === editAssetId);
+    if (a) {
+      const oldTicker = a.ticker;
+      Object.assign(a, { type, ticker, qty, buyPrice, marketPrice, currency, notes });
+      syncMarketPrice(ticker, marketPrice, editAssetId);
+    }
+  } else {
+    const newA = { id: uid(), type, ticker, qty, buyPrice, marketPrice, currency, notes };
+    state.assets.push(newA);
+    syncMarketPrice(ticker, marketPrice, newA.id);
+  }
+
+  save(); render();
+  closeAssetModal();
+  toast(editAssetId ? 'Asset updated' : 'Asset added', 'success');
+}
+
+// ============================================================
+// ADD / EDIT CASH MODAL
+// ============================================================
+function openAddCash() {
+  editCashId = null;
+  document.getElementById('cashModalTitle').textContent = 'Add Cash / RDN';
+  document.getElementById('cf_broker').value = '';
+  document.getElementById('cf_balance').value = '';
+  document.getElementById('cf_currency').value = 'IDR';
+  document.getElementById('cf_notes').value = '';
+  document.getElementById('cashModal').classList.add('open');
+}
+
+function openEditCash(id) {
+  const c = state.cash.find(x => x.id === id);
+  if (!c) return;
+  editCashId = id;
+  document.getElementById('cashModalTitle').textContent = 'Edit Cash';
+  document.getElementById('cf_broker').value = c.broker;
+  document.getElementById('cf_balance').value = c.balance;
+  document.getElementById('cf_currency').value = c.currency;
+  document.getElementById('cf_notes').value = c.notes || '';
+  document.getElementById('cashModal').classList.add('open');
+}
+
+function closeCashModal() {
+  document.getElementById('cashModal').classList.remove('open');
+}
+
+function saveCash() {
+  const broker = document.getElementById('cf_broker').value.trim();
+  const balance = parseFloat(document.getElementById('cf_balance').value) || 0;
+  const currency = document.getElementById('cf_currency').value;
+  const notes = document.getElementById('cf_notes').value.trim();
+
+  if (!broker) { toast('Broker name is required', 'error'); return; }
+
+  if (editCashId) {
+    const c = state.cash.find(x => x.id === editCashId);
+    if (c) Object.assign(c, { broker, balance, currency, notes });
+  } else {
+    state.cash.push({ id: uid(), broker, balance, currency, notes });
+  }
+
+  save(); render();
+  closeCashModal();
+  toast(editCashId ? 'Cash updated' : 'Cash added', 'success');
+}
+
+// ============================================================
+// DELETE
+// ============================================================
+function confirmDeleteAsset(id) {
+  const a = state.assets.find(x => x.id === id);
+  if (!a) return;
+  showConfirm(`Delete ${a.ticker}?`, `This will permanently remove ${a.ticker} from your portfolio.`, () => {
+    state.assets = state.assets.filter(x => x.id !== id);
+    save(); render();
+    toast('Asset deleted', 'success');
+  });
+}
+
+function confirmDeleteCash(id) {
+  const c = state.cash.find(x => x.id === id);
+  if (!c) return;
+  showConfirm(`Delete ${c.broker}?`, 'This cash account will be removed.', () => {
+    state.cash = state.cash.filter(x => x.id !== id);
+    save(); render();
+    toast('Cash account deleted', 'success');
+  });
+}
+
+// ============================================================
+// CONFIRM DIALOG
+// ============================================================
+function showConfirm(title, msg, onConfirm) {
+  document.getElementById('confirmTitle').textContent = title;
+  document.getElementById('confirmMsg').textContent = msg;
+  pendingConfirm = onConfirm;
+  const btn = document.getElementById('confirmBtn');
+  btn.onclick = () => { closeConfirm(); if (pendingConfirm) pendingConfirm(); };
+  document.getElementById('confirmOverlay').classList.add('open');
+}
+
+function closeConfirm() {
+  document.getElementById('confirmOverlay').classList.remove('open');
+  pendingConfirm = null;
+}
+
+function showResetConfirm() {
+  showConfirm('Reset All Data?', 'This will permanently delete all assets and cash accounts.', () => {
+    state = { assets: [], cash: [] };
+    save(); render();
+    toast('All data reset', 'success');
+  });
+  document.getElementById('confirmBtn').textContent = 'Reset';
+}
+
+// ============================================================
+// EXPORT / IMPORT
+// ============================================================
+function exportJSON() {
+  const blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `portofolio-${new Date().toISOString().slice(0,10)}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Exported successfully', 'success');
+}
+
+function importJSON() {
+  document.getElementById('importInput').click();
+}
+
+function handleImport(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.assets && data.cash) {
+        state = data;
+        save(); render();
+        toast('Import successful', 'success');
+      } else {
+        toast('Invalid file format', 'error');
+      }
+    } catch(err) {
+      toast('Could not parse JSON', 'error');
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = '';
+}
+
+// ============================================================
+// TOAST
+// ============================================================
+function toast(msg, type = 'success') {
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  const icon = type === 'success'
+    ? `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>`
+    : `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`;
+  t.innerHTML = icon + msg;
+  const c = document.getElementById('toastContainer');
+  c.appendChild(t);
+  setTimeout(() => { t.style.opacity = '0'; t.style.transition = 'opacity .3s'; setTimeout(() => t.remove(), 300); }, 2800);
+}
+
+// ============================================================
+// CLOSE MODALS ON OVERLAY CLICK
+// ============================================================
+document.getElementById('assetModal').addEventListener('click', function(e) {
+  if (e.target === this) closeAssetModal();
+});
+document.getElementById('cashModal').addEventListener('click', function(e) {
+  if (e.target === this) closeCashModal();
+});
+document.getElementById('confirmOverlay').addEventListener('click', function(e) {
+  if (e.target === this) closeConfirm();
+});
+
+// ============================================================
+// SEED DATA (first load)
+// ============================================================
+function seedData() {
+  if (state.assets.length > 0 || state.cash.length > 0) return;
+  state.assets = [
+    { id: uid(), type: 'IDX', ticker: 'BBCA', qty: 5, buyPrice: 8500, marketPrice: 9250, currency: 'IDR', notes: 'Mandiri Sekuritas' },
+    { id: uid(), type: 'IDX', ticker: 'BBRI', qty: 10, buyPrice: 3900, marketPrice: 4200, currency: 'IDR', notes: 'Mandiri Sekuritas' },
+    { id: uid(), type: 'US', ticker: 'AAPL', qty: 2, buyPrice: 175.50, marketPrice: 211.45, currency: 'USD', notes: 'Interactive Brokers' },
+    { id: uid(), type: 'US', ticker: 'NVDA', qty: 1, buyPrice: 780.00, marketPrice: 950.20, currency: 'USD', notes: 'Interactive Brokers' },
+    { id: uid(), type: 'Crypto', ticker: 'BTC', qty: 0.05, buyPrice: 52000, marketPrice: 62400, currency: 'USDT', notes: 'Binance' },
+    { id: uid(), type: 'Crypto', ticker: 'ETH', qty: 0.5, buyPrice: 2400, marketPrice: 2980, currency: 'USDT', notes: 'Binance' },
+    { id: uid(), type: 'Gold', ticker: 'LM', qty: 10, buyPrice: 1150000, marketPrice: 1285000, currency: 'IDR', notes: 'Antam' },
+  ];
+  state.cash = [
+    { id: uid(), broker: 'Mandiri Sekuritas RDN', balance: 5000000, currency: 'IDR', notes: '' },
+    { id: uid(), broker: 'Interactive Brokers', balance: 500, currency: 'USD', notes: '' },
+  ];
+  save();
+}
+
+// ============================================================
+// INIT
+// ============================================================
+load();
+seedData();
+render();
+</script>
+</body>
+</html>
